@@ -20,40 +20,44 @@ namespace NpmPackage.Controllers
 		// GET: api/<PackageController>/name/version
 		[HttpGet("{name}/{version}")]
 
-		public PackageNode Get(string name, string version)
+		public async Task<PackageNode> GetAsync(string name, string version)
 		{
-			return GetPackageDependencies(name, version);
+			return await GetPackageDependenciesAsync(name, version);
 		}
 
-		public static PackageNode GetPackageDependencies(string name, string version)
+		public static async Task<PackageNode> GetPackageDependenciesAsync(string name, string version)
 		{
-			PackageNode package = GetNPMPackage(name, version);
+			PackageNode package = await GetNPMPackageAsync(name, version);
 			PackageNode root = package;
-			GetPackageDependencies(package, root);
+			await GetPackageDependenciesAsync(package, root);
 			return root;
 		}
 
-		public static void GetPackageDependencies(PackageNode package, PackageNode root){
+		public static async Task GetPackageDependenciesAsync(PackageNode package, PackageNode root){
 			foreach(var depedency in package.Dependencies){
 				var name = depedency.Key;
+				//Regex taken from the Semantic Versioning Specification (https://semver.org/)
+				//ran into some unexpected versions, fount this very helpful
+				//for example "> 1.1.15 <= 2"
+
 				var version = Regex.Match(depedency.Value,@"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?").Value;
 				var childPackage = root.TryGetNode(name, version);
 				if(childPackage == null){
-					childPackage = GetNPMPackage(name, version);
+					childPackage = await Task.Run(()=> GetNPMPackageAsync(name, version));
 					if(childPackage.Dependencies != null){
-						 GetPackageDependencies(childPackage, root);
+						await GetPackageDependenciesAsync(childPackage, root);
 					}
 				}	
 				package.AddChild(package, childPackage);		
 			}
 		}
 		public static async Task<PackageNode> GetNPMPackageAsync(PackageNode package){
-			return await Task.Run(()=> GetNPMPackage(package.Name, package.Version));
+			return await GetNPMPackageAsync(package.Name, package.Version);
 		}
 
 		private const string URL = @"https://registry.npmjs.org/";
 
-		private static PackageNode GetNPMPackage(string name, string version)
+		private static async Task<PackageNode> GetNPMPackageAsync(string name, string version)
 		{
 			PackageNode npmPackage = null;
 			string response = "";
@@ -65,7 +69,7 @@ namespace NpmPackage.Controllers
 				{
 					using (StreamReader reader = new StreamReader(dataStream))
 					{
-						response = reader.ReadToEnd();
+						response = await reader.ReadToEndAsync();
 					}
 				}
 			}
