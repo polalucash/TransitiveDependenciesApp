@@ -18,9 +18,11 @@ This app is based on the directions for the [Snyk Exercise](https://github.com/s
 ## Implementation 
 This is an ASP.NET app, written in C# on the server-side and in React, Javascript on the client-side.
 
-On the server-side there's the `Get` method `/api/package/{name}/{version}` that is responsible for the retrieval 
+On the server-side there's the `Get` endpoint `/api/package/{name}/{version}`that is responsible for the retrieval 
 of the data from the [Npm package API](https://registry.npmjs.org/). 
 Implemented a recursive function with memoization.
 
 On the client-side used javascript, [React](https://reactjs.org/) and [Material-UI](https://material-ui.com/) to 
 represent the tree structure using the [TreeView React Component](https://material-ui.com/components/tree-view/).
+
+The page for the UI tree representation is at the endpoint `/package/{name}/{version}`.
