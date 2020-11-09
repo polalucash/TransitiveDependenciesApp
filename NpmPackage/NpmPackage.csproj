@@ -8,6 +8,7 @@
     <SpaRoot>ClientApp\</SpaRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
     <AssemblyName>NpmPackage</AssemblyName>
+    <UserSecretsId>4f8240c0-0cb7-4d62-b265-aac4d9aaa99a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +29,10 @@
     <None Remove="$(SpaRoot)**" />
     <None Remove="ClientApp\src\src\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\NPMPackageGraph.cs" />
   </ItemGroup>
 
   <ItemGroup>
